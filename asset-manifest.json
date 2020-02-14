@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/chrischan226/inventory_parser/static/css/main.6f5f6bbe.chunk.css",
+    "main.js": "/chrischan226/inventory_parser/static/js/main.fc1d75ba.chunk.js",
+    "main.js.map": "/chrischan226/inventory_parser/static/js/main.fc1d75ba.chunk.js.map",
+    "runtime-main.js": "/chrischan226/inventory_parser/static/js/runtime-main.f200f244.js",
+    "runtime-main.js.map": "/chrischan226/inventory_parser/static/js/runtime-main.f200f244.js.map",
+    "static/js/2.f9b8d9c3.chunk.js": "/chrischan226/inventory_parser/static/js/2.f9b8d9c3.chunk.js",
+    "static/js/2.f9b8d9c3.chunk.js.map": "/chrischan226/inventory_parser/static/js/2.f9b8d9c3.chunk.js.map",
+    "index.html": "/chrischan226/inventory_parser/index.html",
+    "precache-manifest.f5fdcee12fdb4aaada64f862162461a8.js": "/chrischan226/inventory_parser/precache-manifest.f5fdcee12fdb4aaada64f862162461a8.js",
+    "service-worker.js": "/chrischan226/inventory_parser/service-worker.js",
+    "static/css/main.6f5f6bbe.chunk.css.map": "/chrischan226/inventory_parser/static/css/main.6f5f6bbe.chunk.css.map",
+    "static/js/2.f9b8d9c3.chunk.js.LICENSE.txt": "/chrischan226/inventory_parser/static/js/2.f9b8d9c3.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f200f244.js",
+    "static/js/2.f9b8d9c3.chunk.js",
+    "static/css/main.6f5f6bbe.chunk.css",
+    "static/js/main.fc1d75ba.chunk.js"
+  ]
+}
