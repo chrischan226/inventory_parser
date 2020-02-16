@@ -19,6 +19,19 @@ button {
   margin-bottom: 23px;
 }
 
+.fileInput {
+  display: inline-block;
+}
+
+.inputContainer {
+  text-align: center;
+  display: inline-block;
+}
+
+.inputContainer:first-child {
+  margin-right: 5vw;
+}
+
 #input {
   outline: none;
   border: none;
@@ -48,4 +61,19 @@ button {
 .foundRow {
   margin-top: 50px;
   font-size: 20px;
+}
+
+.foundHeader {
+  color: rgb(113, 183, 240);
+  font-size: 30px;
+  margin-top: 50px;
+}
+
+.itemNum {
+  margin-right: 50px;
+  display: inline-block;
+}
+
+.quantity {
+  display: inline-block;
 }

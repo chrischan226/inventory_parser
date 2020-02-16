@@ -1,13 +1,22 @@
 import React from 'react';
+import FileInput from './FileInput';
+import Search from './Search';
+import Found from './Found';
 import './App.css';
+
 const XLSX = require('xlsx');
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      fileName: null,
+      newCol: null,
       data: null,
-      foundRows: [],
+      bomData: null,
+      inventoryData: null,
+      foundRows: null,
+      missing: null,
       search: '',
     }
 
@@ -17,7 +26,10 @@ class App extends React.Component {
   }
 
   fileHandler({target}) {
-    let file = target.files[0];
+    let file = target.files[0],
+        { name } = target,
+        fileName = target.value,
+        partList = {};
     if (!file) return;
 
     var FR = new FileReader();
@@ -27,24 +39,88 @@ class App extends React.Component {
          firstSheet = workbook.Sheets[workbook.SheetNames[0]],
          result = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-     this.setState({
-       data: result,
-     })
+      switch(name) {
+        case 'bomData':
+          let description,
+              mfgPN,
+              headers,
+              count = 0;
+          result.forEach((part, index) => {
+            if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') !== -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
+              let parts = part[mfgPN].split('\r\n');
+              parts.forEach(partName => {
+                partList[partName] = index;
+              })
+            } else if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') === -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
+                partList[part[mfgPN]] = index;
+            } else if(part[0] === 'Item #') {
+                if(headers === undefined) headers = count;
+                for(let i = 0; i < part.length; i++) {
+                  if(typeof part[i] === 'string') {
+                    if(part[i].toLocaleLowerCase() === 'description') description = i; 
+                    if(part[i].toLocaleLowerCase() === 'mfg_pn') mfgPN = i; 
+                  }
+                }
+            }
+            count++;
+          });
+          result[headers].push('Oracle P/N');
+          result[headers].push('B/R after Reserve');
+          fileName = fileName.slice(fileName.indexOf('fakepath') + 9);
+          fileName = fileName.slice(0,fileName.indexOf('.xlsx')) + ' - Comparison' + fileName.slice(fileName.indexOf('.xlsx'));
+          this.setState({
+            fileName,
+            newCol: result[headers].length,
+            bomData: partList,
+            data: result,
+          })
+          break;
+        case 'inventoryData':
+          result.forEach(part => {
+            if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined) {
+              let parts = part[2].split('\r\n').join('').split(',');
+              parts.forEach(partName => {
+                partList[partName] = [part[0], part[part.length - 1]];
+              })
+            }
+          });
+          result = partList;
+          this.setState({
+            [name]: result,
+          })
+          break;
+        default:
+          break;
+      }
    };
    FR.readAsArrayBuffer(file);
   }
 
   filterRows() {
-    let { data, search } = this.state,
-        foundRows = data.filter(row => {
-          let rowString = row.join('');
-          if(rowString.indexOf(search) !== -1) {
-            return row;
-          }
-        })
+    let { bomData, inventoryData, data, fileName, newCol } = this.state,
+        found = [],
+        notFound = {},
+        newData = data.slice(),
+        worksheet,
+        workbook;
+
+    Object.keys(bomData).forEach(partName => {
+      if(inventoryData[partName] !== undefined) { 
+        newData[bomData[partName]][newCol - 2] = inventoryData[partName][0]
+        newData[bomData[partName]][newCol - 1] = inventoryData[partName][1]
+        found.push(inventoryData[partName])
+      }
+      else notFound[bomData[partName]] = true;
+    })
 
     this.setState({
-      foundRows,
+      foundRows : found,
+      missing: notFound,
+    }, () => {
+      worksheet = XLSX.utils.json_to_sheet(newData);
+      workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'parts');
+      XLSX.writeFile(workbook, fileName);
     })
   }
 
@@ -56,27 +132,26 @@ class App extends React.Component {
   }
 
   render() {
-    let { data, foundRows } = this.state;
+    let { bomData, inventoryData, foundRows } = this.state;
     return (
       <div className="App">
         <div className = 'titleContainer'>
-          <p className = 'title'>Search by Part Name</p>
+          <p className = 'title'>Search Inventory</p>
         </div>
-        <input type="file" id="input" accept=".xls,.xlsx,.ods" onChange = {this.fileHandler}/>
-        {data !== null ? 
-        <div className = 'searchContainer'>
-          <div className = "searchInput">
-            <input type="text" id="search" name = "search" onChange = {this.changeHandler} placeholder='Search by Part Name...'/>
-            <button className = 'submit' onClick = {this.filterRows}>Search</button>
-          </div>
+        <div className = 'fileInput'>
+          <FileInput title ='BOM' fileHandler = {this.fileHandler} name = 'bomData' />
+          <FileInput title ='Inventory' fileHandler = {this.fileHandler} name = 'inventoryData' />
         </div>
+        {bomData !== null  && inventoryData !== null ? 
+          <Search changeHandler = {this.changeHandler} filterRows = {this.filterRows} />
         : 
           undefined
         }
         {foundRows !== null ? 
-          foundRows.map(row => {
-            return <div className = 'foundRow'>{row}</div>  
-          })
+          <div>
+            <div className = 'foundHeader'>Found</div>
+            <Found foundRows = {foundRows} />
+          </div>
         : 
           undefined
         }
