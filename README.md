@@ -1,6 +1,6 @@
 ## Start project
 ```
-npm build
+npm start
 ```
 
 ## Project Description
