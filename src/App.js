@@ -52,7 +52,7 @@ class App extends React.Component {
                 partList[partName] = index;
               })
             } else if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') === -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
-                partList[part[mfgPN]] = index;
+              partList[part[mfgPN]] = index;
             } else if(part[0] === 'Item #') {
                 if(headers === undefined) headers = count;
                 for(let i = 0; i < part.length; i++) {
@@ -105,19 +105,19 @@ class App extends React.Component {
         workbook;
 
     Object.keys(bomData).forEach(partName => {
-      if(inventoryData[partName] !== undefined) { 
+      if(inventoryData[partName] !== undefined) {
         newData[bomData[partName]][newCol - 2] = inventoryData[partName][0]
         newData[bomData[partName]][newCol - 1] = inventoryData[partName][1]
         found.push(inventoryData[partName])
       }
-      else notFound[bomData[partName]] = true;
+      else notFound[partName] = true;
     })
 
     this.setState({
       foundRows : found,
       missing: notFound,
     }, () => {
-      worksheet = XLSX.utils.json_to_sheet(newData);
+      worksheet = XLSX.utils.json_to_sheet(newData, {header:['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18']}, {skipHeader: true});
       workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'parts');
       XLSX.writeFile(workbook, fileName);
