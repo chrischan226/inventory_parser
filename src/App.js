@@ -73,12 +73,13 @@ class App extends React.Component {
             newCol: result[headers].length,
             bomData: partList,
             data: result,
+            foundRows: null,
           })
           break;
         case 'inventoryData':
           result.forEach(part => {
             if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined) {
-              let parts = part[2].split('\r\n').join('').split(',');
+              let parts = part[2].replace(/\r\n/g, '|').replace(/,/g, '|').split('|');
               parts.forEach(partName => {
                 partList[partName] = [part[0], part[part.length - 1]];
               })
@@ -87,6 +88,7 @@ class App extends React.Component {
           result = partList;
           this.setState({
             [name]: result,
+            foundRows: null,
           })
           break;
         default:
