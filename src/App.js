@@ -78,8 +78,8 @@ class App extends React.Component {
           break;
         case 'inventoryData':
           result.forEach(part => {
-            if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined) {
-              let parts = part[2].replace(/\r\n/g, '|').replace(/,/g, '|').split('|');
+            if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined && part[2].length > 0) {
+              let parts = part[2].replace(/\r\n/g, '|').replace(/,/g, '|').replace(/ /g,'').split('|');
               parts.forEach(partName => {
                 partList[partName] = [part[0], part[part.length - 1]];
               })
