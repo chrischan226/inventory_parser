@@ -106,10 +106,10 @@ class App extends React.Component {
 
     Object.keys(bomData).forEach(partName => {
       if(inventoryData[partName] !== undefined) {
-        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `${inventoryData[partName][0]}\r\n`;
+        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `\r\n${inventoryData[partName][0]}`;
         else newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
 
-        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `${inventoryData[partName][1]}\r\n`;
+        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `\r\n${inventoryData[partName][1]}`;
         else newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
 
         found.push(inventoryData[partName])
