@@ -41,8 +41,7 @@ class App extends React.Component {
 
       switch(name) {
         case 'bomData':
-          let description,
-              mfgPN,
+          let mfgPN,
               headers,
               count = 0;
           result.forEach((part, index) => {
@@ -57,7 +56,6 @@ class App extends React.Component {
                 if(headers === undefined) headers = count;
                 for(let i = 0; i < part.length; i++) {
                   if(typeof part[i] === 'string') {
-                    if(part[i].toLocaleLowerCase() === 'description') description = i; 
                     if(part[i].toLocaleLowerCase() === 'mfg_pn') mfgPN = i; 
                   }
                 }
@@ -108,8 +106,12 @@ class App extends React.Component {
 
     Object.keys(bomData).forEach(partName => {
       if(inventoryData[partName] !== undefined) {
-        newData[bomData[partName]][newCol - 2] = inventoryData[partName][0]
-        newData[bomData[partName]][newCol - 1] = inventoryData[partName][1]
+        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `${inventoryData[partName][0]}\r\n`;
+        else newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
+
+        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `${inventoryData[partName][1]}\r\n`;
+        else newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
+
         found.push(inventoryData[partName])
       }
       else notFound[partName] = true;
@@ -150,7 +152,7 @@ class App extends React.Component {
           undefined
         }
         {foundRows !== null ? 
-          <div>
+          <div className = 'foundContainer'>
             <div className = 'foundHeader'>Found</div>
             <Found foundRows = {foundRows} />
           </div>
