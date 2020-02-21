@@ -79,7 +79,11 @@ class App extends React.Component {
             if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined && part[2].length > 0) {
               let parts = part[2].replace(/\r\n/g, '|').replace(/,/g, '|').replace(/ /g,'').split('|');
               parts.forEach(partName => {
-                partList[partName] = [part[0], part[part.length - 1]];
+                if(partList[partName] === undefined) partList[partName] = [part[0], part[part.length - 1]];
+                else {
+                  partList[partName][0] += `\r\n${part[0]}`
+                  partList[partName][1] += `\r\n${part[part.length - 1]}`
+                }
               })
             }
           });
@@ -121,7 +125,7 @@ class App extends React.Component {
       foundRows : found,
       missing: notFound,
     }, () => {
-      worksheet = XLSX.utils.json_to_sheet(newData, {header:['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18']}, {skipHeader: true});
+      worksheet = XLSX.utils.json_to_sheet(newData, {header:['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18'], skipHeader: true});
       workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, 'parts');
       XLSX.writeFile(workbook, fileName);
