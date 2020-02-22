@@ -38,11 +38,15 @@ class App extends React.Component {
     if (!file) return;
 
     var FR = new FileReader();
+    document.getElementsByClassName('lds-ring')[0].style.height = '80px';
+    document.getElementsByClassName('lds-ring')[0].style.width = '80px';
+    document.getElementsByClassName('lds-ring')[0].style.marginTop = '200px';
+    document.getElementsByClassName('lds-ring')[0].style.visibility = 'visible';
     FR.onload = ({target}) => {
-     var data = new Uint8Array(target.result),
-         workbook = XLSX.read(data, {type: 'array'}),
-         firstSheet = workbook.Sheets[workbook.SheetNames[0]],
-         result = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+      var data = new Uint8Array(target.result),
+        workbook = XLSX.read(data, {type: 'array'}),
+        firstSheet = workbook.Sheets[workbook.SheetNames[0]],
+        result = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
       switch(name) {
         case 'bomData':
@@ -67,6 +71,10 @@ class App extends React.Component {
             }
             count++;
           });
+          document.getElementsByClassName('lds-ring')[0].style.height = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.width = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.marginTop = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.visibility = 'hidden';
           result[headers].push('Oracle P/N');
           result[headers].push('B/R after Reserve');
           fileName = fileName.slice(fileName.indexOf('fakepath') + 9);
@@ -99,6 +107,10 @@ class App extends React.Component {
               }
             }
           });
+          document.getElementsByClassName('lds-ring')[0].style.height = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.width = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.marginTop = '0px';
+          document.getElementsByClassName('lds-ring')[0].style.visibility = 'hidden';
           result = partList;
           this.setState({
             [name]: result,
@@ -164,6 +176,7 @@ class App extends React.Component {
         : 
           undefined
         }
+        <div className = "lds-ring"><div></div><div></div><div></div><div></div></div>
         {foundRows !== null ? 
           <div className = 'foundContainer'>
             <div className = 'foundHeader'>Found</div>
