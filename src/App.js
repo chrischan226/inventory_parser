@@ -43,15 +43,19 @@ class App extends React.Component {
         case 'bomData':
           let mfgPN,
               headers,
+              parts,
               count = 0;
           result.forEach((part, index) => {
             if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') !== -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
-              let parts = part[mfgPN].split('\r\n');
+              parts = part[mfgPN].split('\r\n');
               parts.forEach(partName => {
                 partList[partName] = index;
               })
             } else if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') === -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
-              partList[part[mfgPN]] = index;
+              parts = part[mfgPN].split('\n');
+              parts.forEach(partName => {
+                partList[partName] = index;
+              })
             } else if(part[0] === 'Item #') {
                 if(headers === undefined) headers = count;
                 for(let i = 0; i < part.length; i++) {
@@ -81,8 +85,8 @@ class App extends React.Component {
               parts.forEach(partName => {
                 if(partList[partName] === undefined) partList[partName] = [part[0], part[part.length - 1]];
                 else {
-                  partList[partName][0] += `\r\n${part[0]}`
-                  partList[partName][1] += `\r\n${part[part.length - 1]}`
+                  partList[partName][0] += `, \r\n${part[0]}`
+                  partList[partName][1] += `, \r\n${part[part.length - 1]}`
                 }
               })
             }
@@ -110,10 +114,10 @@ class App extends React.Component {
 
     Object.keys(bomData).forEach(partName => {
       if(inventoryData[partName] !== undefined) {
-        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `\r\n${inventoryData[partName][0]}`;
+        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `, \r\n${inventoryData[partName][0]}`;
         else newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
 
-        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `\r\n${inventoryData[partName][1]}`;
+        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `, \r\n${inventoryData[partName][1]}`;
         else newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
 
         found.push(inventoryData[partName])
