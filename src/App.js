@@ -29,6 +29,11 @@ class App extends React.Component {
     let file = target.files[0],
         { name } = target,
         fileName = target.value,
+        mfgPN,
+        reserve,
+        headers,
+        parts,
+        count = 0,
         partList = {};
     if (!file) return;
 
@@ -41,10 +46,6 @@ class App extends React.Component {
 
       switch(name) {
         case 'bomData':
-          let mfgPN,
-              headers,
-              parts,
-              count = 0;
           result.forEach((part, index) => {
             if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') !== -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
               parts = part[mfgPN].split('\r\n');
@@ -56,7 +57,7 @@ class App extends React.Component {
               parts.forEach(partName => {
                 partList[partName] = index;
               })
-            } else if(part[0] === 'Item #') {
+            } else if(part[0] !== undefined && typeof part[0] === 'string' && part[0].indexOf('Item') !== -1) {
                 if(headers === undefined) headers = count;
                 for(let i = 0; i < part.length; i++) {
                   if(typeof part[i] === 'string') {
@@ -80,15 +81,22 @@ class App extends React.Component {
           break;
         case 'inventoryData':
           result.forEach(part => {
-            if(part[0] !== undefined && part[0].indexOf('Item') === -1 && part[2] !== undefined && part[2].length > 0) {
-              let parts = part[2].replace(/\r\n/g, '|').replace(/,/g, '|').replace(/ /g,'').split('|');
+            if(part[0] !== undefined && part[mfgPN] !== undefined && part[mfgPN].length > 0) {
+              let parts = part[mfgPN].replace(/\r\n/g, '|').replace(/,/g, '|').replace(/ /g,'').split('|');
               parts.forEach(partName => {
-                if(partList[partName] === undefined) partList[partName] = [part[0], part[part.length - 1]];
-                else {
+                if(partList[partName] === undefined) partList[partName] = [part[0], part[reserve]];
+                else if(partList[partName][0].indexOf(part[0]) === -1) {
                   partList[partName][0] += `, \r\n${part[0]}`
-                  partList[partName][1] += `, \r\n${part[part.length - 1]}`
+                  partList[partName][1] += `, \r\n${part[reserve]}`
                 }
               })
+            } else if(part[0] !== undefined && typeof part[0] === 'string' && mfgPN === undefined) {
+              for(let i = 0; i < part.length; i++) {
+                if(typeof part[i] === 'string') {
+                  if(part[i].toLocaleLowerCase() === 'mfg_pn' || part[i].toLocaleLowerCase().indexOf('mfg part') !== -1) mfgPN = i; 
+                  if(part[i].toLocaleLowerCase().indexOf('reserve') !== -1) reserve = i; 
+                }
+              }
             }
           });
           result = partList;
@@ -114,11 +122,8 @@ class App extends React.Component {
 
     Object.keys(bomData).forEach(partName => {
       if(inventoryData[partName] !== undefined) {
-        if(newData[bomData[partName]][newCol - 2] !== undefined) newData[bomData[partName]][newCol - 2] += `, \r\n${inventoryData[partName][0]}`;
-        else newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
-
-        if(newData[bomData[partName]][newCol - 1] !== undefined) newData[bomData[partName]][newCol - 1] += `, \r\n${inventoryData[partName][1]}`;
-        else newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
+        newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
+        newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
 
         found.push(inventoryData[partName])
       }
