@@ -54,12 +54,14 @@ class App extends React.Component {
             if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') !== -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
               parts = part[mfgPN].split('\r\n');
               parts.forEach(partName => {
-                partList[partName] = index;
+                if(partList[partName] === undefined) partList[partName] = [index];
+                else partList[partName].push(index);
               })
             } else if(part[mfgPN] !== undefined && typeof part[mfgPN] === 'string' && part[mfgPN].indexOf('\r\n') === -1 && part[mfgPN] !== 'N/A' && part[mfgPN] !== 'MFG_PN') {
               parts = part[mfgPN].split('\n');
               parts.forEach(partName => {
-                partList[partName] = index;
+                if(partList[partName] === undefined) partList[partName] = [index];
+                else partList[partName].push(index);
               })
             } else if(part[0] !== undefined && typeof part[0] === 'string' && part[0].indexOf('Item') !== -1) {
                 if(headers === undefined) headers = count;
@@ -133,13 +135,18 @@ class App extends React.Component {
         workbook;
 
     Object.keys(bomData).forEach(partName => {
-      if(inventoryData[partName] !== undefined) {
-        newData[bomData[partName]][newCol - 2] = inventoryData[partName][0];
-        newData[bomData[partName]][newCol - 1] = inventoryData[partName][1];
-
-        found.push(inventoryData[partName])
-      }
-      else notFound[partName] = true;
+      bomData[partName].forEach(index => {
+        if(inventoryData[partName] !== undefined) {
+          if(newData[index][newCol - 2] === undefined) newData[index][newCol - 2] = inventoryData[partName][0];
+          else newData[index][newCol - 2] += `,\r\n${inventoryData[partName][0]}`;
+  
+          if(newData[index][newCol - 1] === undefined) newData[index][newCol - 1] = inventoryData[partName][1];
+          else newData[index][newCol - 1] += `,\r\n${inventoryData[partName][1]}`;
+  
+          found.push(inventoryData[partName])
+        }
+        else notFound[partName] = true;
+      })
     })
 
     this.setState({
