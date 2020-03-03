@@ -138,12 +138,34 @@ class App extends React.Component {
     Object.keys(bomData).forEach(partName => {
       bomData[partName].forEach(index => {
         if(inventoryData[partName] !== undefined) {
-          if(newData[index][newCol - 2] === undefined) newData[index][newCol - 2] = inventoryData[partName][0];
-          else newData[index][newCol - 2] += `,\r\n${inventoryData[partName][0]}`;
-  
-          if(newData[index][newCol - 1] === undefined) newData[index][newCol - 1] = inventoryData[partName][1];
-          else newData[index][newCol - 1] += `,\r\n${inventoryData[partName][1]}`;
-  
+          if(newData[index][newCol - 2] === undefined && newData[index][newCol - 1] === undefined) {
+            newData[index][newCol - 2] = inventoryData[partName][0];
+            newData[index][newCol - 1] = inventoryData[partName][1];
+          } else {
+            let store = {},
+                partNumbers = String(newData[index][newCol - 2]).split(','),
+                partAmounts = String(newData[index][newCol - 1]).split(',');
+
+            partNumbers.forEach((item, index) => {
+              store[item] = partAmounts[index];
+            })
+            partNumbers = String(inventoryData[partName][0]).split(',');
+            partAmounts = String(inventoryData[partName][1]).split(',');
+            partNumbers.forEach((item, index) => {
+              if(store[item] === undefined) store[item] = partAmounts[index];
+            })
+
+            newData[index][newCol - 2] = '';
+            newData[index][newCol - 1] = '';
+
+            for(let items in store) {
+              if(newData[index][newCol - 2] === '') newData[index][newCol - 2] = `${items}`;
+              else newData[index][newCol - 2] += `,${items}`;
+
+              if(newData[index][newCol - 1] === '') newData[index][newCol - 1] = `${store[items]}`;
+              else newData[index][newCol - 1] += `,${store[items]}`;
+            }
+          }
           found.push(inventoryData[partName])
         }
         else notFound[partName] = true;
