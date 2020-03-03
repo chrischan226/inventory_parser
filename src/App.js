@@ -35,6 +35,7 @@ class App extends React.Component {
         parts,
         count = 0,
         partList = {};
+    console.log(file);
     if (!file) return;
 
     var FR = new FileReader();
@@ -138,10 +139,10 @@ class App extends React.Component {
       bomData[partName].forEach(index => {
         if(inventoryData[partName] !== undefined) {
           if(newData[index][newCol - 2] === undefined) newData[index][newCol - 2] = inventoryData[partName][0];
-          else newData[index][newCol - 2] += `,\r\n${inventoryData[partName][0]}`;
+          else if(newData[index][newCol - 2].indexOf(inventoryData[partName][0] !== -1)) newData[index][newCol - 2] += `,\r\n${inventoryData[partName][0]}`;
   
           if(newData[index][newCol - 1] === undefined) newData[index][newCol - 1] = inventoryData[partName][1];
-          else newData[index][newCol - 1] += `,\r\n${inventoryData[partName][1]}`;
+          else if(newData[index][newCol - 1].indexOf(inventoryData[partName][1]) !== -1) newData[index][newCol - 1] += `,\r\n${inventoryData[partName][1]}`;
   
           found.push(inventoryData[partName])
         }
